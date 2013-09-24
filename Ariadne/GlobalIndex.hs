@@ -11,8 +11,19 @@ import Data.Maybe
 
 import Ariadne.Types
 
-indexModule :: Module SrcLoc -> Index
-indexModule = undefined
+-- XXX compute the table ourselves
+indexModule :: Global.Table -> Module SrcLoc -> Index
+indexModule tbl mod =
+  let
+    Module _ _ _ _ ds = mod
+    ModuleName _ modname = getModuleName mod
+
+    names = concatMap (indexDecl tbl) ds
+  in
+    Map.fromList
+      [ ((OrigName Nothing (GName modname (nameToString n)), level), ann n)
+      | (n, level) <- names
+      ]
 
 indexDecl :: Global.Table -> Decl SrcLoc -> [(Name SrcLoc, NameLevel)]
 indexDecl tbl d =
