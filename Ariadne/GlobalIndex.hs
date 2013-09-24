@@ -1,25 +1,37 @@
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TupleSections, TypeFamilies #-}
 module Ariadne.GlobalIndex where
 
 import Language.Haskell.Names
 import qualified Language.Haskell.Names.GlobalSymbolTable as Global
 import Language.Haskell.Names.SyntaxUtils
 import Language.Haskell.Names.GetBound
+import Language.Haskell.Names.Imports
 import Language.Haskell.Exts.Annotated
+import Distribution.HaskellSuite.Modules
 import qualified Data.Map as Map
 import Data.Maybe
 
 import Ariadne.Types
 
--- XXX compute the table ourselves
-indexModule :: Global.Table -> Module SrcLoc -> Index
-indexModule tbl mod =
+-- these should probably come from the Cabal file
+defaultLang = Haskell2010
+defaultExts = []
+
+indexModule
+  :: (MonadModule m, ModuleInfo m ~ Symbols)
+  => Global.Table -> Module SrcLoc -> m Index
+indexModule tbl mod = do
+  let extSet = moduleExtensions defaultLang defaultExts mod
+
+  (_, tbl) <- processImports extSet $ getImports mod
+
   let
     Module _ _ _ _ ds = mod
     ModuleName _ modname = getModuleName mod
 
     names = concatMap (indexDecl tbl) ds
-  in
+
+  return $
     Map.fromList
       [ ((OrigName Nothing (GName modname (nameToString n)), level), ann n)
       | (n, level) <- names
