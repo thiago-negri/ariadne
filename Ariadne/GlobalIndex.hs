@@ -1,5 +1,5 @@
 {-# LANGUAGE TupleSections, TypeFamilies #-}
-module Ariadne.GlobalIndex where
+module Ariadne.GlobalIndex (indexModule) where
 
 import Language.Haskell.Names
 import qualified Language.Haskell.Names.GlobalSymbolTable as Global
