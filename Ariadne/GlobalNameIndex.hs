@@ -1,5 +1,5 @@
 {-# LANGUAGE TupleSections, TypeFamilies #-}
-module Ariadne.GlobalNameIndex (indexModule) where
+module Ariadne.GlobalNameIndex (mkGlobalNameIndex) where
 
 import Language.Haskell.Names
 import qualified Language.Haskell.Names.GlobalSymbolTable as Global
@@ -17,10 +17,10 @@ import Ariadne.Types
 defaultLang = Haskell2010
 defaultExts = []
 
-indexModule
+mkGlobalNameIndex
   :: (MonadModule m, ModuleInfo m ~ Symbols)
-  => Global.Table -> Module SrcLoc -> m Index
-indexModule tbl mod = do
+  => Global.Table -> Module SrcLoc -> m GlobalNameIndex
+mkGlobalNameIndex tbl mod = do
   let extSet = moduleExtensions defaultLang defaultExts mod
 
   (_, tbl) <- processImports extSet $ getImports mod
