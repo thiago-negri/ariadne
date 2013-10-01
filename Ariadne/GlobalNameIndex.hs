@@ -5,7 +5,6 @@ import Language.Haskell.Names
 import qualified Language.Haskell.Names.GlobalSymbolTable as Global
 import Language.Haskell.Names.SyntaxUtils
 import Language.Haskell.Names.GetBound
-import Language.Haskell.Names.Imports
 import Language.Haskell.Exts.Annotated
 import Distribution.HaskellSuite.Modules
 import qualified Data.Map as Map
@@ -13,25 +12,16 @@ import Data.Maybe
 
 import Ariadne.Types
 
--- these should probably come from the Cabal file
-defaultLang = Haskell2010
-defaultExts = []
-
 mkGlobalNameIndex
-  :: (MonadModule m, ModuleInfo m ~ Symbols)
-  => Global.Table -> Module SrcLoc -> m GlobalNameIndex
-mkGlobalNameIndex tbl mod = do
-  let extSet = moduleExtensions defaultLang defaultExts mod
-
-  (_, tbl) <- processImports extSet $ getImports mod
-
+  :: Global.Table -> Module SrcLoc -> GlobalNameIndex
+mkGlobalNameIndex tbl mod =
   let
     Module _ _ _ _ ds = mod
     ModuleName _ modname = getModuleName mod
 
     names = concatMap (indexDecl tbl) ds
 
-  return $
+  in
     Map.fromList
       [ ((OrigName Nothing (GName modname (nameToString n)), level), ann n)
       | (n, level) <- names
