@@ -51,7 +51,7 @@ lookup (fromSrcLoc -> loc) (SrcMap map) =
     (_less, greater)
       | Map.null greater -> Nothing
       | otherwise ->
-        case Map.findMax greater of
+        case Map.findMin greater of
          (_, (start, value))
           | start <= loc -> Just value
           | otherwise -> Nothing
