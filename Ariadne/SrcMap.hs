@@ -23,12 +23,12 @@ import Data.Monoid
 
 -- | @Loc line column@
 data Loc = Loc !Int !Int
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
 newtype SrcMap a =
   SrcMap
   { unSrcMap :: Map.Map {- end -} Loc ({- start -} Loc, a)
-  }
+  } deriving Show
 
 instance Monoid (SrcMap a) where
   mempty = empty

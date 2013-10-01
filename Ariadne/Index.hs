@@ -15,6 +15,7 @@ import qualified Ariadne.SrcMap as SrcMap
 data Origin
   = LocKnown SrcLoc
   | LocUnknown ModuleNameS
+  deriving Show
 
 mkSrcMap
   :: Foldable a
