@@ -15,6 +15,7 @@ import qualified Ariadne.SrcMap as SrcMap
 data Origin
   = LocKnown SrcLoc
   | LocUnknown ModuleNameS
+  | ResolveError String
   deriving Show
 
 mkSrcMap
@@ -31,6 +32,8 @@ mkSrcMap gIndex =
         SrcMap.singleton span $ findGlobal ValueLevel orig
       GlobalType  (st_origName -> orig) ->
         SrcMap.singleton span $ findGlobal TypeLevel  orig
+      ScopeError er ->
+        SrcMap.singleton span $ ResolveError $ ppError er
       _ -> SrcMap.empty
   where
     findGlobal level orig =

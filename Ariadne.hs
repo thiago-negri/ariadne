@@ -15,6 +15,7 @@ import Distribution.HaskellSuite.Packages
 import Control.Applicative
 import Control.Monad.Trans
 import Control.Monad
+import Text.Printf
 
 import Data.BERT
 import Network.BERT.Server
@@ -27,26 +28,31 @@ defaultExts = []
 
 work :: String -> Int -> Int -> IO (Maybe Origin)
 work mod line col = do
-  parsed <-
-    fromParseResult <$>
-      parseFileWithMode
-        defaultParseMode { parseFilename = mod }
-        mod
+  parseResult <-
+    parseFileWithMode
+      defaultParseMode { parseFilename = mod }
+      mod
 
-  let pkgs = []
-  (resolved, impTbl) <-
-    flip evalNamesModuleT pkgs $ do
-      -- computeInterfaces lang exts mod
-      let extSet = moduleExtensions defaultLang defaultExts parsed
-      (,) <$>
-        (annotateModule defaultLang defaultExts parsed) <*>
-        (fmap snd $ processImports extSet $ getImports parsed)
+  case parseResult of
+    ParseFailed loc msg ->
+      return $ Just $ ResolveError $ printf "%s: %s" (prettyPrint loc) msg
 
-  let
-    gIndex = mkGlobalNameIndex impTbl (getPointLoc <$> parsed)
-    srcMap = mkSrcMap gIndex (fmap srcInfoSpan <$> resolved)
+    ParseOk parsed -> do
 
-  return $ SrcMap.lookup noLoc { srcLine = line, srcColumn = col } srcMap
+      let pkgs = []
+      (resolved, impTbl) <-
+        flip evalNamesModuleT pkgs $ do
+          -- computeInterfaces lang exts mod
+          let extSet = moduleExtensions defaultLang defaultExts parsed
+          (,) <$>
+            (annotateModule defaultLang defaultExts parsed) <*>
+            (fmap snd $ processImports extSet $ getImports parsed)
+
+      let
+        gIndex = mkGlobalNameIndex impTbl (getPointLoc <$> parsed)
+        srcMap = mkSrcMap gIndex (fmap srcInfoSpan <$> resolved)
+
+      return $ SrcMap.lookup noLoc { srcLine = line, srcColumn = col } srcMap
 
 main = do
   t <- fromHostPort "" 39014
@@ -64,9 +70,14 @@ main = do
               , IntTerm line'
               , IntTerm col'
               ]
-          Just (LocUnknown modName) -> 
+          Just (LocUnknown modName) ->
             TupleTerm
               [ AtomTerm "loc_unknown"
               , BinaryTerm (UTF8.fromString modName)
+              ]
+          Just (ResolveError er) ->
+            TupleTerm
+              [ AtomTerm "error"
+              , BinaryTerm (UTF8.fromString er)
               ]
     dispatch _ _ _ = return NoSuchFunction
