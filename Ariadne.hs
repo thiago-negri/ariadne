@@ -15,6 +15,7 @@ import Distribution.HaskellSuite.Packages
 import Control.Applicative
 import Control.Monad.Trans
 import Control.Monad
+import Control.Exception
 import Text.Printf
 
 import Data.BERT
@@ -27,7 +28,7 @@ defaultLang = Haskell2010
 defaultExts = []
 
 work :: String -> Int -> Int -> IO (Maybe Origin)
-work mod line col = do
+work mod line col = handleExceptions $ do
   parseResult <-
     parseFileWithMode
       defaultParseMode { parseFilename = mod }
@@ -53,6 +54,9 @@ work mod line col = do
         srcMap = mkSrcMap gIndex (fmap srcInfoSpan <$> resolved)
 
       return $ SrcMap.lookup noLoc { srcLine = line, srcColumn = col } srcMap
+  where
+    handleExceptions a =
+      try (a >>= evaluate) >>= either (\e -> return $ Just $ ResolveError $ show (e::SomeException)) return
 
 main = do
   t <- fromHostPort "" 39014
