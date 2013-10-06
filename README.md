@@ -1,4 +1,4 @@
-ariadne
+Ariadne
 =======
 
 Ariadne provides a "go-to-definition" functionality for Haskell.
