@@ -4,7 +4,7 @@
 name:                ariadne
 version:             0.1
 synopsis:            Go-to-definition for Haskell
-description:         See https://github.com/feuerbach/ariadne#ariadne
+description:         See <https://github.com/feuerbach/ariadne#ariadne>
 homepage:            https://github.com/feuerbach/ariadne
 license:             MIT
 license-file:        LICENSE
