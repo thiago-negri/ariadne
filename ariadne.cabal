@@ -4,8 +4,8 @@
 name:                ariadne
 version:             0.1
 synopsis:            Go-to-definition for Haskell
--- description:
-homepage:            http://github.com/feuerbach/ariadne
+description:         See https://github.com/feuerbach/ariadne#ariadne
+homepage:            https://github.com/feuerbach/ariadne
 license:             MIT
 license-file:        LICENSE
 author:              Roman Cheplyaka
@@ -15,6 +15,10 @@ category:            Language
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
+
+source-repository head
+  type: git
+  location: git@github.com:feuerbach/ariadne.git
 
 executable ariadne-server
   main-is: Ariadne.hs
