@@ -19,6 +19,16 @@ Currently, the following editor/IDE plugins exist:
 
 * [vim](https://github.com/feuerbach/ariadne-vim)
 
+Limitations
+-----------
+
+As of v0.1, Ariadne only knows about the current file. It won't find definitions
+in other files in the same directory, or in the installed packages. It also
+won't look in the Cabal file for the language extensions, and a file may fail to
+parse because of that.
+
+These will be addressed in the future versions.
+
 Creating a plugin
 -----------------
 
