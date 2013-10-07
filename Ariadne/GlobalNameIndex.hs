@@ -56,7 +56,6 @@ indexDecl tbl d =
         ]
 
     ClassDecl _ _ dh _ mds ->
-      (hname dh, TypeLevel) :
       let
         ms = getBound tbl d
         cdecls = fromMaybe [] mds
